@@ -27,8 +27,8 @@ public class Calculator {
         // Map<"token", precedence>
         OPERATORS.put("log", 5);
         OPERATORS.put("exp", 2);
-        OPERATORS.put("^", 2);
         OPERATORS.put("ncr", 2);
+        OPERATORS.put("^", 2);
         OPERATORS.put("*", 3);
         OPERATORS.put("/", 3);
         OPERATORS.put("%", 3);
@@ -52,6 +52,9 @@ public class Calculator {
 
         // parse expression into terms
         this.termTokenizer();
+
+        // parenthesis check
+        this.parenthesesCheck();
 
         // place terms into reverse polish notation
         this.tokensToReversePolishNotation();
@@ -111,6 +114,25 @@ public class Calculator {
         }
     }
 
+    private boolean parenthesesCheck() {
+        int leftParentheses = 0;
+        int rightParentheses = 0;
+        for (int i = 0; i < this.expression.length(); i++) {
+            if (this.expression.charAt(i) == '(') {
+                leftParentheses++;
+            } else if (this.expression.charAt(i) == ')') {
+                rightParentheses++;
+            }
+        }
+
+        if (leftParentheses != rightParentheses) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     // Conversion to Reverse Polish Notation (RPN), the operator follows its operands.
     private void tokensToReversePolishNotation () {
         this.reverse_polish = new ArrayList<>();
@@ -137,8 +159,8 @@ public class Calculator {
                 case "%":
                 case "^":
                 case "log":
-                case "exp":
                 case "ncr":
+                case "exp":
                     // While stack has stuff and the top of the stack is an operator
                     while (tokenStack.size() > 0 && isOperator(tokenStack.peek()))
                     {
@@ -177,17 +199,14 @@ public class Calculator {
 
     }
 
-    private void rpnToResult()
-    {
+    private void rpnToResult() {
         // stack holds operands and calculations
         Stack<Double> calcStack = new Stack<Double>();
 
         // RPN processes and calcStack has final result
-        for (String token : this.reverse_polish)
-        {
+        for (String token : this.reverse_polish) {
             // token operator --> Calculator
-            if (isOperator(token))
-            {
+            if (isOperator(token)) {
                               
                 // Pop top two entries
                 double a = calcStack.pop();
@@ -212,13 +231,6 @@ public class Calculator {
                         result = b % a;
                         break;
                     case "^":
-                    case "log":
-                        result = (Math.log(a) / Math.log(b));
-                        break;
-                    case "exp":
-                        // Math.pow() function
-                        result = Math.pow(b,a);
-                        break;
                     case "ncr":
                         int nFac = 1;
                         for (int i = 1; i <= b; i++) {
@@ -233,6 +245,13 @@ public class Calculator {
                             nMinusRFac=  nMinusRFac * i;
                         }
                         result = (double) nFac/(rFac * nMinusRFac);
+                        break;
+                    case "log":
+                        result = (Math.log(a) / Math.log(b));
+                        break;
+                    case "exp":
+                        // Math.pow() function
+                        result = Math.pow(b,a);
                         break;
                     default:
                         break;
@@ -261,7 +280,7 @@ public class Calculator {
     }
 
     public String toString() {
-        return ( "{ \"Expression\": \"" + this.expression + "\", \"Tokens\": \"" + this.tokens + "\", \"RPN\": \"" + this.reverse_polish + "\", \"Result\": " + this.result + " }" );
+        return ( "{ \"Expression\": \""  + this.expression + "\", \"Parenthesis Check\": \""+ this.parenthesesCheck() + "\", \"Tokens\": \"" + this.tokens + "\", \"RPN\": \"" + this.reverse_polish + "\", \"Result\": " + this.result + " }" );   
     }
     
 }
